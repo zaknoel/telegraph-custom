@@ -22,7 +22,7 @@ class SendRequestToTelegramJob implements ShouldQueue
      * @param array<string, mixed> $data
      * @param Collection<string, Attachment> $files
      */
-    public function __construct(public string $url, public array $data, public Collection $files, public $callback=null)
+    public function __construct(public string $url, public array $data, public Collection $files, public $callback=[])
     {
     }
 
@@ -44,11 +44,10 @@ class SendRequestToTelegramJob implements ShouldQueue
         );
 
         $response=$request->post($this->url, $this->data);
-        if(is_callable($this->callback)){
-            //callback
-            //callback
+        if(is_callable($this->callback['callback']??null)){
+
             $response=TelegraphResponse::fromResponse($response);
-            call_user_func($this->callback, $response);
+            call_user_func($this->callback['callback'], $response, $this->callback['data']??[]);
         }
 
     }
