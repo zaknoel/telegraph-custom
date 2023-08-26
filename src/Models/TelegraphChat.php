@@ -36,7 +36,7 @@ class TelegraphChat extends Model implements Storable
 {
     use HasFactory;
     use HasStorage;
-    gua
+
     protected $guarded = [
 
     ];
