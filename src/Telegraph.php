@@ -144,7 +144,7 @@ class Telegraph
         return TelegraphResponse::fromResponse($response);
     }
 
-    public function dispatch(string $queue = null, $callback=null): PendingDispatch
+    public function dispatch(string $queue = null, $callback=[]): PendingDispatch
     {
         return $this->dispatchRequestToTelegram($queue, $callback);
     }

@@ -44,9 +44,19 @@ class SendRequestToTelegramJob implements ShouldQueue
         );
 
         $response=$request->post($this->url, $this->data);
+        $response=TelegraphResponse::fromResponse($response);
+        //logging
+        $ldata=[
+            "is_callable"=>$this->callback['callback'],
+            "data"=>$this->callback['data'],
+            "response"=>$response->telegraphOk(),
+            'tg_id'=>$response->telegraphMessageId()
+        ];
+        file_put_contents($_SERVER["DOCUMENT_ROOT"]."/ll.txt", print_r($ldata, 1), FILE_APPEND);
+
         if(is_callable($this->callback['callback']??null)){
 
-            $response=TelegraphResponse::fromResponse($response);
+
             call_user_func($this->callback['callback'], $response, $this->callback['data']??[]);
         }
 
