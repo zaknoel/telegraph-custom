@@ -42,9 +42,16 @@ class SendRequestToTelegramJob implements ShouldQueue
             },
             $request
         );
+        if(function_exists("OnBeforeDelaySend")){
+            OnBeforeDelaySend($this);
+        }
+
 
         $response=$request->post($this->url, $this->data);
         $response=TelegraphResponse::fromResponse($response);
+        if(function_exists("OnAfterDelaySend")){
+            OnAfterDelaySend($this, $response);
+        }
         if(array_key_exists('log', $this->callback)){
             //logging
             $ldata=[
