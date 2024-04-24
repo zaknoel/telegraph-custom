@@ -8,17 +8,21 @@ class TelegraphResponse extends Response
 {
     public static function fromResponse(Response $response): TelegraphResponse
     {
-        return new self($response->toPsrResponse());
-    }
-
-    public function telegraphOk(): bool
-    {
-        return parent::successful() && $this->json('ok');
+        $obj = new self($response->toPsrResponse());
+        if (function_exists('OnBeforeTelegraphResponse')) {
+            OnBeforeTelegraphResponse($obj);
+        }
+        return $obj;
     }
 
     public function telegraphError(): bool
     {
         return !$this->telegraphOk();
+    }
+
+    public function telegraphOk(): bool
+    {
+        return parent::successful() && $this->json('ok');
     }
 
     public function telegraphMessageId(): int|null
@@ -28,7 +32,7 @@ class TelegraphResponse extends Response
         }
 
         /* @phpstan-ignore-next-line */
-        return (int) $this->json('result.message_id');
+        return (int)$this->json('result.message_id');
     }
 
     public function dump(): static
