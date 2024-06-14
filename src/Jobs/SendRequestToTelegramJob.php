@@ -22,7 +22,7 @@ class SendRequestToTelegramJob implements ShouldQueue
      * @param array<string, mixed> $data
      * @param Collection<string, Attachment> $files
      */
-    public function __construct(public string $url, public array $data, public Collection $files, public $callback=[])
+    public function __construct(public string $url, public array $data, public Collection $files, public $callback = [])
     {
     }
 
@@ -36,38 +36,43 @@ class SendRequestToTelegramJob implements ShouldQueue
 
         /** @var PendingRequest $request */
         $request = $this->files->reduce(
-            /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore-next-line */
             function ($request, Attachment $attachment, string $key) {
                 return $request->attach($key, $attachment->contents(), $attachment->filename());
             },
             $request
         );
-        if(function_exists("OnBeforeDelaySend")){
+        if (function_exists("OnBeforeDelaySend")) {
             OnBeforeDelaySend($this);
         }
 
-
-        $response=$request->post($this->url, $this->data);
-        $response=TelegraphResponse::fromResponse($response);
-        if(function_exists("OnAfterDelaySend")){
-            OnAfterDelaySend($this, $response);
-        }
-        if(array_key_exists('log', $this->callback)){
-            //logging
-            $ldata=[
-                'callback'=>$this->callback,
-                "is_callable"=>is_callable($this->callback['callback']??null),
-                "data"=>$this->callback['data']??[],
-                "response"=>$response->telegraphOk(),
-                'tg_id'=>$response->telegraphMessageId()
-            ];
-            $file=($_SERVER["DOCUMENT_ROOT"]?:public_path())."/ll.txt";
-            file_put_contents($file, print_r($ldata, 1), FILE_APPEND);
-        }
-        if(is_callable($this->callback['callback']??null)){
+        try {
 
 
-            call_user_func($this->callback['callback'], $response, $this->callback['data']??[]);
+            $response = $request->post($this->url, $this->data);
+            $response = TelegraphResponse::fromResponse($response);
+            if (function_exists("OnAfterDelaySend")) {
+                OnAfterDelaySend($this, $response);
+            }
+            if (array_key_exists('log', $this->callback)) {
+                //logging
+                $ldata = [
+                    'callback' => $this->callback,
+                    "is_callable" => is_callable($this->callback['callback'] ?? null),
+                    "data" => $this->callback['data'] ?? [],
+                    "response" => $response->telegraphOk(),
+                    'tg_id' => $response->telegraphMessageId()
+                ];
+                $file = ($_SERVER["DOCUMENT_ROOT"] ?: public_path()) . "/ll.txt";
+                file_put_contents($file, print_r($ldata, 1), FILE_APPEND);
+            }
+            if (is_callable($this->callback['callback'] ?? null)) {
+
+
+                call_user_func($this->callback['callback'], $response, $this->callback['data'] ?? []);
+            }
+        } catch (\Exception $e) {
+            info("Telegram queue send error:" . $e->getMessage());
         }
 
     }
