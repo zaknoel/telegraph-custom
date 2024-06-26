@@ -10,7 +10,7 @@ use DefStudio\Telegraph\Telegraph;
 use http\Client\Response;
 use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\Response;
+use Illuminate\Http\Client\Response as ClientResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
@@ -50,7 +50,7 @@ trait InteractsWithTelegram
         return $telegraph;
     }
 
-    protected function sendRequestToTelegram(): Response
+    protected function sendRequestToTelegram(): ClientResponse
     {
         $asMultipart = $this->files->isNotEmpty();
 
