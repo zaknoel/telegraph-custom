@@ -31,7 +31,7 @@ class TelegraphResponse extends Response
         return (int) $this->json('result.message_id');
     }
 
-    public function dump(): static
+    public function dump()
     {
         dump($this->json());
 
