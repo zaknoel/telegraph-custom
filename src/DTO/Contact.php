@@ -6,8 +6,8 @@ use Illuminate\Contracts\Support\Arrayable;
 
 class Contact implements Arrayable
 {
-    private string $phone_number;
-    private string $first_name;
+    private ?string $phone_number;
+    private ?string $first_name;
     private ?string $last_name;
     private ?int $user_id = null;
     private ?string $vcard = null;
@@ -24,7 +24,7 @@ class Contact implements Arrayable
         $contact = new self();
 
         $contact->phone_number = $data['phone_number'];
-        $contact->first_name = $data['first_name'];
+        $contact->first_name = $data['first_name']??null;
         $contact->last_name = $data['last_name'] ?? null;
         $contact->user_id = $data['user_id'] ?? null;
         $contact->vcard = $data['vcard'] ?? null;
